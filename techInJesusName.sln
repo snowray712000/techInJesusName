@@ -21,6 +21,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "techHTML", "techHTML\", "{6
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "23775"
+		SlnRelativePath = "techHTML\"
 		DefaultWebSiteLanguage = "Visual C#"
 	EndProjectSection
 EndProject

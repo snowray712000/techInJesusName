@@ -28,12 +28,38 @@
     /// </summary>
     private void InitializeComponent()
     {
-      this.components = new System.ComponentModel.Container();
+      this.button01_serverStart = new System.Windows.Forms.Button();
+      this.SuspendLayout();
+      // 
+      // button01_serverStart
+      // 
+      this.button01_serverStart.Location = new System.Drawing.Point(26, 25);
+      this.button01_serverStart.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+      this.button01_serverStart.Name = "button01_serverStart";
+      this.button01_serverStart.Size = new System.Drawing.Size(210, 48);
+      this.button01_serverStart.TabIndex = 0;
+      this.button01_serverStart.Text = "01_serverStart";
+      this.button01_serverStart.UseVisualStyleBackColor = true;
+      this.button01_serverStart.Click += new System.EventHandler(this.button01_serverStart_Click);
+      // 
+      // Form1
+      // 
+      this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 25F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.ClientSize = new System.Drawing.Size(537, 395);
+      this.Controls.Add(this.button01_serverStart);
+      this.Font = new System.Drawing.Font("Verdana", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+      this.Name = "Form1";
       this.Text = "Form1";
+      this.Load += new System.EventHandler(this.Form1_Load);
+      this.ResumeLayout(false);
+
     }
 
     #endregion
+
+    private System.Windows.Forms.Button button01_serverStart;
   }
 }
 
