@@ -4,13 +4,17 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<title></title>
 	<meta charset="utf-8" />
-  <script src="Scripts/jquery-3.1.0.min.js"></script>
+	<script src="Scripts/jquery-3.1.0.min.js"></script>
 </head>
 <body>
 	<script>
-    $.get("http://127.0.0.1:8000/n/b", null, function (r1, r2, r3) {
-      console.log(r1);
-    }, 'json');
+		var data = { hd: {}, da: {na:"unzip"} };
+		$.get("http://127.0.0.1:8000/n/b?x=gd", null, function (r1, r2, r3) {
+			console.log(r1);
+		}, 'json');
+		//$.post("http://127.0.0.1:8000/n/b", data, function (r1, r2, r3) {
+		//  console.log(r1);
+		//}, 'json');
 	</script>
 </body>
 </html>
