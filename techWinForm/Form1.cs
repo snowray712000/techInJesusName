@@ -88,6 +88,15 @@ namespace techWinForm
         {
           Console.WriteLine(ex.Message);
         }
+        // listen next 
+        try
+        {
+          _listener.BeginAcceptTcpClient(whenServerAcceptOneClient, null);
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine(ex.Message);
+        }
       }
 
       /// <summary>
@@ -324,6 +333,15 @@ namespace techWinForm
         {
           var client = _listener.EndAcceptTcpClient(ar);
 
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine(ex.Message);
+        }
+        // listen next 
+        try
+        {
+          _listener.BeginAcceptTcpClient(whenServerAcceptOneClient, null);
         }
         catch (Exception ex)
         {
