@@ -59,6 +59,27 @@ namespace techWinForm
           var reader = new httpserverreader(client,
             a1 => {
               Console.WriteLine(a1.m_jheader.ToString());
+              /*     http/1.1 200 ok
+               *     content-length: 53
+               *     content-type: text/plain
+               *     
+               *     hello world
+               */
+              var contentstr = a1.m_jheader.ToString();
+
+              var bys2 = Encoding.UTF8.GetBytes(contentstr);
+              StringBuilder str = new StringBuilder();
+              str.Append("http/1.1 200 ok\r\n");
+              str.Append("content-length: " +bys2.Length+ "\r\n");
+              str.Append("content-type: text/plain \r\n");
+              str.Append("Access-Control-Allow-Origin: *\r\n");
+              str.Append("\r\n");
+              var byssend = Encoding.UTF8.GetBytes(str.ToString()).Concat(bys2).ToArray();
+
+              a1.m_networkStream.Write(byssend, 0, byssend.Length);
+              try { using (a1.m_networkStream) { } } catch { }
+              try { using (a1.m_client) { } } catch { }
+              // 結束
             },
             ex => MessageBox.Show(deepex(ex)));
 
@@ -80,7 +101,8 @@ namespace techWinForm
         public List<byte> m_byscontent { get { return byscontent; } }
         /// <summary> client.getStream() 出來的, 回傳給結果的時候可以用 </summary>
         public NetworkStream m_networkStream { get { return net; } }
-
+        /// <summary> dispose 關閉時可以用 </summary>
+        public TcpClient m_client { get { return client; } }
         private NetworkStream net;
         /// <summary> 不要呼叫這個, 呼叫 when_ex(), 會用 try-catch 包起來</summary>
         private Action<Exception> when_exception;
