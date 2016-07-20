@@ -7,7 +7,7 @@
 	<script src="Scripts/jquery-3.1.0.min.js"></script>
 </head>
 <body>
-	<script>
+	<!--<script>
 		var data = { hd: {}, da: {na:"unzip"} };
 		$.get("http://127.0.0.1:8000/n/b?x=gd", null, function (r1, r2, r3) {
 		  console.log(r1);
@@ -15,6 +15,13 @@
 		$.post("http://127.0.0.1:8000/n/b", data, function (r1, r2, r3) {
 		  document.writeln(r1);
 		}, 'json');
-	</script>
+	</script>-->
+  <div>
+    影音
+    <video width="320" height="240" controls>
+      <source src="http://127.0.0.1:9599/movie.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
 </body>
 </html>
