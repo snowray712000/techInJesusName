@@ -29,7 +29,7 @@ namespace techWinForm
 
     private void button01_serverStart_Click(object sender, EventArgs e)
     {
-      var server1 = new httpserver();
+      var server1 = new httpserver(9599);
       server1.startServer();
       button01_serverStart.Enabled = false;
     }
@@ -38,7 +38,7 @@ namespace techWinForm
     /// </summary>
     class httpserver : tcpserver
     {
-      public httpserver(string ip = "127.0.0.1", int port = 8000)
+      public httpserver(int port = 8000,string ip = "127.0.0.1")
         : base(ip, port) { }
 
       protected override void whenServerAcceptOneClient(IAsyncResult ar)
@@ -65,16 +65,17 @@ namespace techWinForm
                *     
                *     hello world
                */
-              var contentstr = a1.m_jheader.ToString();
+              var contentstr = a1.m_jheader.ToString() + Encoding.UTF8.GetString(a1.m_byscontent.ToArray());
 
               var bys2 = Encoding.UTF8.GetBytes(contentstr);
-              StringBuilder str = new StringBuilder();
-              str.Append("http/1.1 200 ok\r\n");
-              str.Append("content-length: " +bys2.Length+ "\r\n");
-              str.Append("content-type: text/plain \r\n");
-              str.Append("Access-Control-Allow-Origin: *\r\n");
-              str.Append("\r\n");
-              var byssend = Encoding.UTF8.GetBytes(str.ToString()).Concat(bys2).ToArray();
+              var cmd = @"HTTP/1.1 200 OK
+content-type:text/plain; charset=UTF-8
+connection: close
+content-length:"+bys2.Length+@"
+access-control-allow-origin: *
+
+"; 
+              var byssend = Encoding.UTF8.GetBytes(cmd).Concat(bys2).ToArray();
 
               a1.m_networkStream.Write(byssend, 0, byssend.Length);
               try { using (a1.m_networkStream) { } } catch { }
@@ -270,6 +271,11 @@ namespace techWinForm
                         else
                           readasync();//再嘗試取得
                       }
+                      else
+                      {
+                        /// @verbatim 雖然是post 卻沒有傳資料過來 @endverbatim
+                        when_do(); //完成了
+                      }
                     }
                     else if ((string)jheader["method"] == "get")
                     {
@@ -350,5 +356,37 @@ namespace techWinForm
       }
     }
 
+    private void button02_connect_Click(object sender, EventArgs e)
+    {
+      JObject jarg = new JObject();
+      jarg["hd"] = new JObject();
+      jarg["da"] = new JObject();
+      jarg["da"]["fana"] = "CCM";
+      jarg["da"]["t"] = DateTime.UtcNow;
+
+      var argstr = JsonConvert.SerializeObject(jarg);
+      var argbys = Encoding.UTF8.GetBytes(argstr);
+      Task.Factory.StartNew(() => {
+
+        var req = (HttpWebRequest)HttpWebRequest.CreateDefault(new Uri("http://127.0.0.1:8000/nc/data"));
+        req.Method = "POST";
+        req.ContentLength = argbys.Length;
+        var stm1 = req.GetRequestStream();
+        stm1.Write(argbys, 0, argbys.Length);
+        var resp = req.GetResponse();
+
+        string ret2 = "";
+        if ( resp.ContentLength!= 0)
+        {
+          var bys2 = new byte[resp.ContentLength];
+          var stm2 = resp.GetResponseStream();
+          stm2.Read(bys2, 0, bys2.Length);
+          ret2 =Encoding.UTF8.GetString(bys2);
+        }
+
+
+
+      });
+    }
   }
 }
