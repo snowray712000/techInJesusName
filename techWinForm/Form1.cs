@@ -78,23 +78,32 @@ namespace techWinForm
 
               var path = AppDomain.CurrentDomain.BaseDirectory + "test1.mp4";
               var info = new FileInfo(path);
-              var bys = File.ReadAllBytes(path);
+              long byslength = info.Length;
+              //var bys = File.ReadAllBytes(path);
               long translen = 1024 * 400;
-              if (bys_start + translen - 1 >= bys.LongLength - 1)
-                translen = bys.LongLength - bys_start;
+              if (bys_start + translen - 1 >= byslength - 1)
+                translen = byslength - bys_start;
               long bys_end = bys_start + translen - 1;
               
               //var cmd = @"HTTP/1.1 200 OK
               var cmd = @"HTTP/1.1 206 Partial Content
 Accept-Ranges: bytes
-Content-Range: bytes " + bys_start + "-" + (bys_start + translen - 1) + @"/" + bys.LongLength + @"
+Content-Range: bytes " + bys_start + "-" + (bys_start + translen - 1) + @"/" + byslength + @"
 Content-Length: " + translen + @"
 connection: keep-alive
 access-control-allow-origin: *
 Content-Type: video/mp4
 
 ";
-              var byssend = Encoding.UTF8.GetBytes(cmd).Concat(bys.Skip((int)bys_start).Take((int)translen)).ToArray();
+              var bys = new byte[translen];
+              using (var stm = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+              {
+                stm.Seek(bys_start, SeekOrigin.Begin);
+                stm.Read(bys, 0, (int)translen);
+              }
+              
+
+              var byssend = Encoding.UTF8.GetBytes(cmd).Concat(bys).ToArray();
               a1.m_networkStream.Write(byssend, 0, byssend.Length);
 
               new httpserverreader(a1.m_client, when_done, aa1 => {
