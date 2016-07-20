@@ -57,76 +57,82 @@ namespace techWinForm
         try
         {
           var client = _listener.EndAcceptTcpClient(ar);
-          var reader = new httpserverreader(client,
-            a1 => {
+
+          Action<httpserverreader> when_done = null;
+          when_done = a1 => {
 
             var url = (string)a1.m_jheader["url"];
             if (url.EndsWith(".mp4"))
             {
               Console.WriteLine(a1.m_jheader.ToString());
 
-                int bys_start = 0;
-                var reg_range = new Regex(@"bytes=(?<i1>[0-9]+)-");
-                if ( a1.m_jheader["range"]!=null)
-                {
-                  var rangeask = (string)a1.m_jheader["range"];
-                  var re1 = reg_range.Match(rangeask);
-                  var idx1 = int.Parse(re1.Groups["i1"].Value);
-                  bys_start = idx1;
-                }
+              long bys_start = 0;
+              var reg_range = new Regex(@"bytes=(?<i1>[0-9]+)-");
+              if (a1.m_jheader["range"] != null)
+              {
+                var rangeask = (string)a1.m_jheader["range"];
+                var re1 = reg_range.Match(rangeask);
+                var idx1 = int.Parse(re1.Groups["i1"].Value);
+                bys_start = idx1;
+              }
 
               var path = AppDomain.CurrentDomain.BaseDirectory + "test1.mp4";
               var info = new FileInfo(path);
               var bys = File.ReadAllBytes(path);
-                //var translen = 1024 * 1024;
-                var translen = 1024 * 400;
-                var bys_end = (bys_start + translen - 1 >= bys.LongLength - 1) ? bys.LongLength - 1 : bys_start + translen - 1;
+              long translen = 1024 * 400;
+              if (bys_start + translen - 1 >= bys.LongLength - 1)
+                translen = bys.LongLength - bys_start;
+              long bys_end = bys_start + translen - 1;
+              
               //var cmd = @"HTTP/1.1 200 OK
               var cmd = @"HTTP/1.1 206 Partial Content
 Accept-Ranges: bytes
-Content-Range: bytes "+bys_start+"-" + (bys_start + translen-1) + @"/" + bys.LongLength + @"
+Content-Range: bytes " + bys_start + "-" + (bys_start + translen - 1) + @"/" + bys.LongLength + @"
 Content-Length: " + translen + @"
-connection: close
+connection: keep-alive
 access-control-allow-origin: *
 Content-Type: video/mp4
 
 ";
-              var byssend = Encoding.UTF8.GetBytes(cmd).Concat(bys.Skip(bys_start).Take(translen)).ToArray();
+              var byssend = Encoding.UTF8.GetBytes(cmd).Concat(bys.Skip((int)bys_start).Take((int)translen)).ToArray();
               a1.m_networkStream.Write(byssend, 0, byssend.Length);
 
+              new httpserverreader(a1.m_client, when_done, aa1 => {
                 try { using (a1.m_networkStream) { } } catch { }
                 try { using (a1.m_client) { } } catch { }
-                return;
-              }
-              else
-              {
-                Console.WriteLine(a1.m_jheader.ToString());
-                /*     http/1.1 200 ok
-                 *     content-length: 53
-                 *     content-type: text/plain
-                 *     
-                 *     hello world
-                 */
-                var contentstr = a1.m_jheader.ToString() + Encoding.UTF8.GetString(a1.m_byscontent.ToArray());
+                throw aa1;
+              });
+              return;
+            }
+            else
+            {
+              Console.WriteLine(a1.m_jheader.ToString());
+              /*     http/1.1 200 ok
+               *     content-length: 53
+               *     content-type: text/plain
+               *     
+               *     hello world
+               */
+              var contentstr = a1.m_jheader.ToString() + Encoding.UTF8.GetString(a1.m_byscontent.ToArray());
 
-                var bys2 = Encoding.UTF8.GetBytes(contentstr);
-                var cmd = @"HTTP/1.1 200 OK
+              var bys2 = Encoding.UTF8.GetBytes(contentstr);
+              var cmd = @"HTTP/1.1 200 OK
   content-type:text/plain; charset=UTF-8
   connection: close
-  content-length:"+bys2.Length+@"
+  content-length:" + bys2.Length + @"
   access-control-allow-origin: *
 
-  "; 
-                var byssend = Encoding.UTF8.GetBytes(cmd).Concat(bys2).ToArray();
+  ";
+              var byssend = Encoding.UTF8.GetBytes(cmd).Concat(bys2).ToArray();
 
-                a1.m_networkStream.Write(byssend, 0, byssend.Length);
-                try { using (a1.m_networkStream) { } } catch { }
-                try { using (a1.m_client) { } } catch { }
-                return;
-                // 結束
-              }
-            },
-            ex => MessageBox.Show(deepex(ex)));
+              a1.m_networkStream.Write(byssend, 0, byssend.Length);
+              try { using (a1.m_networkStream) { } } catch { }
+              try { using (a1.m_client) { } } catch { }
+              return;
+              // 結束
+            }
+          };
+          var reader = new httpserverreader(client,when_done,ex => MessageBox.Show(deepex(ex)));
 
         }
         catch (Exception ex)
