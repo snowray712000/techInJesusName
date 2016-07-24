@@ -29,7 +29,6 @@
     private void InitializeComponent()
     {
       this.button01_serverStart = new System.Windows.Forms.Button();
-      this.button02_connect = new System.Windows.Forms.Button();
       this.SuspendLayout();
       // 
       // button01_serverStart
@@ -43,23 +42,11 @@
       this.button01_serverStart.UseVisualStyleBackColor = true;
       this.button01_serverStart.Click += new System.EventHandler(this.button01_serverStart_Click);
       // 
-      // button02_connect
-      // 
-      this.button02_connect.Location = new System.Drawing.Point(26, 85);
-      this.button02_connect.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-      this.button02_connect.Name = "button02_connect";
-      this.button02_connect.Size = new System.Drawing.Size(210, 48);
-      this.button02_connect.TabIndex = 1;
-      this.button02_connect.Text = "02_connect";
-      this.button02_connect.UseVisualStyleBackColor = true;
-      this.button02_connect.Click += new System.EventHandler(this.button02_connect_Click);
-      // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 25F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(537, 395);
-      this.Controls.Add(this.button02_connect);
       this.Controls.Add(this.button01_serverStart);
       this.Font = new System.Drawing.Font("Verdana", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
@@ -73,7 +60,6 @@
     #endregion
 
     private System.Windows.Forms.Button button01_serverStart;
-    private System.Windows.Forms.Button button02_connect;
   }
 }
 

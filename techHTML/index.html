@@ -7,15 +7,16 @@
 	<script src="Scripts/jquery-3.1.0.min.js"></script>
 </head>
 <body>
-	<!--<script>
-		var data = { hd: {}, da: {na:"unzip"} };
-		$.get("http://127.0.0.1:8000/n/b?x=gd", null, function (r1, r2, r3) {
-		  console.log(r1);
-		}, 'json');
-		$.post("http://127.0.0.1:8000/n/b", data, function (r1, r2, r3) {
-		  document.writeln(r1);
-		}, 'json');
-	</script>-->
+	<script>
+    var data = { hd: {}, da: { na: "unzip" } };
+    $.ajax({
+      url: "http://127.0.0.1:9599/n/b?x=gd",
+      type: "GET",
+      success: function (data, textStatus, jqXHR) {
+        console.log(data);
+      }
+    });
+	</script>
   <div>
     影音
     <video width="320" height="240" controls>
