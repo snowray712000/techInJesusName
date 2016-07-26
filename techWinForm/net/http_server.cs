@@ -24,17 +24,21 @@ namespace IJN.net
   {
     private Regex reg_range=null;
     #region http response state
-    static void response_200_OK(NetworkStream stream, string content, string content_type="text/plain")
+    static void response_200_OK(NetworkStream stream, string content, string content_type = "text/plain")
     {
       var bys2 = Encoding.UTF8.GetBytes(content);
+      response_200_OK(stream, bys2, content_type);
+    }
+    static void response_200_OK(NetworkStream stream, byte[] bys, string content_type = "text/plain")
+    {
       var header = @"HTTP/1.1 200 OK
 Content-Type:" + content_type + @"; charset=UTF-8
-Content-Length:" + bys2.Length + @"
+Content-Length:" + bys.Length + @"
 Connection: Close
 Access-Control-Allow-Origin: *
 
 ";
-      var bys3 = Encoding.UTF8.GetBytes(header).Concat(bys2).ToArray();
+      var bys3 = Encoding.UTF8.GetBytes(header).Concat(bys).ToArray();
       stream.Write(bys3, 0, bys3.Length);
     }
     /// <summary>
@@ -95,8 +99,30 @@ access-control-allow-origin: *
 
       Action<http_server_read_tool> when_done = null;
       when_done = a1 => {
+        Action exit_net = () => {
+          try { using (a1.m_networkStream) { } } catch { }
+          try { using (a1.m_client) { } } catch { }
+        };
+
         var url = (string)a1.m_jheader["url"];
-        if (url.EndsWith(".mp4"))
+        if ( url.StartsWith("/web1/"))
+        {
+          var ext =Path.GetExtension(url);
+          var contenttype = "text/plain"; //default
+          var reghtml = new Regex(@"\.htm");
+          if (reghtml.IsMatch(ext))
+            contenttype = "text/html";
+          else if (ext == ".js")
+            contenttype = "application/javascript";
+          else if (ext == ".css")
+            contenttype = "text/css";
+
+          var srd = AppDomain.CurrentDomain.BaseDirectory;
+          var bys = File.ReadAllBytes(srd + url.Substring(1));
+          response_200_OK(a1.m_networkStream, bys,contenttype);
+          exit_net(); return;
+        }
+        else if (url.EndsWith(".mp4"))
         {
           //Console.WriteLine(a1.m_jheader.ToString());
 
@@ -117,26 +143,24 @@ access-control-allow-origin: *
 
           // 還不開放 keep-alive
           //new httpserverreader(a1.m_client, when_done, aa1 => {
-          //  try { using (a1.m_networkStream) { } } catch { }
-          //  try { using (a1.m_client) { } } catch { }
+          //  exit_net();
           //  throw aa1;
           //});
-          try { using (a1.m_networkStream) { } } catch { }
-          try { using (a1.m_client) { } } catch { }
-          return;
+          exit_net(); return;
         }
         else
         {
           response_200_OK(a1.m_networkStream, "Hello World Server Response");
-          try { using (a1.m_networkStream) { } } catch { }
-          try { using (a1.m_client) { } } catch { }
-          return;
+          exit_net(); return;
           // 結束
         }
+
       };
       new http_server_read_tool(client, when_done, ex => this.trigger_exceptionoccured(ex));
       return;
     }
+
+
 
 
 
