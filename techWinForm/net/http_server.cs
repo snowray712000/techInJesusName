@@ -24,17 +24,19 @@ namespace IJN.net
   {
     private Regex reg_range=null;
     #region http response state
-    static void response_200_OK(NetworkStream stream, string content, string content_type = "text/plain")
+    static void response_200_OK(NetworkStream stream, string content, string content_type = "text/plain", DateTime last_write_utc = default(DateTime))
     {
       var bys2 = Encoding.UTF8.GetBytes(content);
-      response_200_OK(stream, bys2, content_type);
+      response_200_OK(stream, bys2, content_type, last_write_utc);
     }
-    static void response_200_OK(NetworkStream stream, byte[] bys, string content_type = "text/plain")
+    static void response_200_OK(NetworkStream stream, byte[] bys, string content_type = "text/plain",DateTime last_write_utc=default(DateTime))
     {
+      var date = last_write_utc.Year == 1 ? "" : "Last-Modified: "+last_write_utc.ToString("R") + "\r\n";
+
       var header = @"HTTP/1.1 200 OK
 Content-Type:" + content_type + @"; charset=UTF-8
 Content-Length:" + bys.Length + @"
-Connection: Close
+"+date+@"Connection: Close
 Access-Control-Allow-Origin: *
 
 ";
@@ -48,8 +50,10 @@ Access-Control-Allow-Origin: *
     /// <param name="h_range">(string)m_jheader["range"] </param>
     /// <param name="path_inserver">server的絕對路徑</param>
     /// <param name="content_type">video/mp4</param>
-    static void response_206_Partial_Content(NetworkStream stream,string h_range,string path_inserver, string content_type = "application/octet-stream")
+    static void response_206_Partial_Content(NetworkStream stream,string h_range,string path_inserver, string content_type = "application/octet-stream", DateTime last_write_utc = default(DateTime))
     {
+      var date = last_write_utc.Year == 1 ? "" : "Last-Modified: " + last_write_utc.ToString("R") + "\r\n";
+    
       long bys_start = 0;
       var reg_range = new Regex(@"bytes=(?<i1>[0-9]+)-");
       if (h_range != null)
@@ -72,8 +76,8 @@ Access-Control-Allow-Origin: *
 Accept-Ranges: bytes
 Content-Range: bytes " + bys_start + "-" + (bys_start + translen - 1) + @"/" + byslength + @"
 Content-Length: " + translen + @"
-Content-Type: "+ content_type +@"
-connection: close
+Content-Type: "+ content_type + @"
+" + date + @"Connection: Close
 access-control-allow-origin: *
 
 ";
@@ -87,6 +91,16 @@ access-control-allow-origin: *
 
       var byssend = Encoding.UTF8.GetBytes(cmd).Concat(bys).ToArray();
       stream.Write(byssend, 0, byssend.Length);      
+    }
+    static void response_304_Not_Modified(NetworkStream stream)
+    {
+      var header = @"HTTP/1.1 304 Not Modified
+Connection: Close
+Access-Control-Allow-Origin: *
+
+";
+      var bys3 = Encoding.UTF8.GetBytes(header).ToArray();
+      stream.Write(bys3, 0, bys3.Length);
     }
     #endregion
 
@@ -107,7 +121,26 @@ access-control-allow-origin: *
         var url = (string)a1.m_jheader["url"];
         if ( url.StartsWith("/web1/"))
         {
-          var ext =Path.GetExtension(url);
+
+
+          var srd = AppDomain.CurrentDomain.BaseDirectory;
+          var path = srd + url.Substring(1);
+
+
+          var info = new FileInfo(path);
+          // If-Modified-Since:Mon, 25 Jul 2016 10:48:42 GMT
+          if (a1.m_jheader["if-modified-since"] != null)
+          {
+            var t = DateTime.Parse((string)a1.m_jheader["if-modified-since"]);
+            if ( info.LastWriteTime.AddSeconds(-1) <= t)//t轉出來是local,非utc ... info到秒之後還有小數點
+            {
+              response_304_Not_Modified(a1.m_networkStream);
+              exit_net(); return;
+            }
+          }
+
+          var bys = File.ReadAllBytes(path);
+          var ext = Path.GetExtension(url);
           var contenttype = "text/plain"; //default
           var reghtml = new Regex(@"\.htm");
           if (reghtml.IsMatch(ext))
@@ -116,10 +149,7 @@ access-control-allow-origin: *
             contenttype = "application/javascript";
           else if (ext == ".css")
             contenttype = "text/css";
-
-          var srd = AppDomain.CurrentDomain.BaseDirectory;
-          var bys = File.ReadAllBytes(srd + url.Substring(1));
-          response_200_OK(a1.m_networkStream, bys,contenttype);
+          response_200_OK(a1.m_networkStream, bys,contenttype, info.LastWriteTimeUtc);
           exit_net(); return;
         }
         else if (url.EndsWith(".mp4"))
@@ -139,7 +169,8 @@ access-control-allow-origin: *
           }
 
           var path = AppDomain.CurrentDomain.BaseDirectory + "test1.mp4";
-          response_206_Partial_Content(a1.m_networkStream, (string)a1.m_jheader["range"], path, "vedio/mp4");
+          var info = new FileInfo(path);
+          response_206_Partial_Content(a1.m_networkStream, (string)a1.m_jheader["range"], path, "vedio/mp4", info.LastWriteTimeUtc);
 
           // 還不開放 keep-alive
           //new httpserverreader(a1.m_client, when_done, aa1 => {
