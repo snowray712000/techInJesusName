@@ -27,6 +27,8 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "techHTML", "techHTML\", "{6
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "techWinForm", "techWinForm\techWinForm.csproj", "{E4E34A8B-A6B8-4D75-9090-DFF4CA043C94}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cnetParse", "cnetParse\cnetParse.csproj", "{B3474A77-05C1-4244-806E-19BEB72164FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,10 @@ Global
 		{E4E34A8B-A6B8-4D75-9090-DFF4CA043C94}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4E34A8B-A6B8-4D75-9090-DFF4CA043C94}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4E34A8B-A6B8-4D75-9090-DFF4CA043C94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3474A77-05C1-4244-806E-19BEB72164FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3474A77-05C1-4244-806E-19BEB72164FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3474A77-05C1-4244-806E-19BEB72164FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3474A77-05C1-4244-806E-19BEB72164FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
