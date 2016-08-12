@@ -817,6 +817,16 @@ namespace cnetParse
         }
       }
     }
+
+    private void button3_Click(object sender, EventArgs e)
+    {
+      MessageBox.Show(".doc檔要轉為 .docx 檔唷. 檔名是 01- 02- 03- .... 也不要有重複的");
+      MessageBox.Show("你把word檔放在執行檔目錄的cnet/了嗎?");
+      MessageBox.Show("按下產生,在目錄中,「maybe-簡體」,檔案產生,表示可能有簡體(但可以不理它)");
+      MessageBox.Show("按下產生,在目錄中,「maybe-錯誤」,檔案產生,表示可能有錯誤,是用經節順序去判斷的(要理它)");
+      MessageBox.Show("若有 -verse error.txt, 表示可能是格式設錯, 例如 1:1萬軍...萬軍的格式被設為verse造成的, 這樣的情況用word去修改");
+      MessageBox.Show("過程會產生footnotes,step1資料夾...最後會產生cnet.sqlite");
+    }
   }
 
 }
