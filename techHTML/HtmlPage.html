@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+  <script src="Scripts/jquery-3.1.0.min.js"></script>
+	<meta charset="utf-8" />
+</head>
+<body>
+  <script>
+    var url = "https://bkbible.fhl.net/json/qb.php?chineses=%E5%BE%92&chap=9&version=unv&strong=0&gb=0";
+    var url2 = "https://bible.fhl.net/json/sobj.php?engs=Acts&chap=9";
+
+    $.get(url, null, function (r1, r2, r3) {
+
+      // 經文
+      var aaa = "";
+      $.each(r1.record, function (i1, a1) {
+        aaa += a1.bible_text + ".......";
+      });
+      
+      $("#re1").text(aaa);
+
+      $.get(url2, null, function (r11, r22, r33) {
+
+        // 地圖
+        var bbb = "";
+        $.each(r11.record, function (i11, a11) {
+          bbb += a11.c1name  + "、";
+        });
+        $("#re2").text("地點:"+bbb);
+
+      },"json");
+
+
+    }, "json");
+
+  </script>
+  <div id="re1"></div>
+  <div id="re2"></div>
+</body>
+</html>

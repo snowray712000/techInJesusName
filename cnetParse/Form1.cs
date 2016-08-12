@@ -20,6 +20,12 @@ namespace cnetParse
   public partial class Form1 : Form
   {
     private string srd;
+    /// <summary>
+    /// {[0]=1,[1]=Gen,[2]=Genesis,[3]=創,[4]=創世記,[5]=Ge}
+    /// {[1]=2,[1]=...}
+    /// 
+    /// Form_Load 初始化的
+    /// </summary>
     private string[][] book_name_reference;
 
     public Form1()
@@ -322,8 +328,145 @@ namespace cnetParse
 
     private void button2_Click(object sender, EventArgs e)
     {
+      Action<Action<SQLiteConnection>> sql_act = act2 => {
+        var path = "cnet.sqlite";
+        using (var sqlite_connect = new SQLiteConnection("Data source=" + path))
+        {
+          sqlite_connect.Open();
+          act2(sqlite_connect);
+        }
+      };
+
+      Action act_create_table = () => {
+
+      sql_act(sqlite_connect => {
+        {
+          var cmd = sqlite_connect.CreateCommand(); //create command
+          cmd.CommandText =
+            @"CREATE TABLE IF NOT EXISTS cnet (
+        id INTEGER, 
+        engs TEXT,
+        chap INTEGER,
+        sec INTEGER,
+        txt TEXT,
+        username TEXT,
+        modtime TEXT,
+        origuser TEXT
+        )";
+          cmd.ExecuteNonQuery();
+        }
+
+        {
+          var cmd = sqlite_connect.CreateCommand(); //create command
+          cmd.CommandText =
+            @"CREATE TABLE IF NOT EXISTS recnet  (
+            engs TEXT,
+            id INTEGER, 
+            txt TEXT
+            )";
+          cmd.ExecuteNonQuery();
+        }
+      });
+      };
+      Action act_reset_table = () => {
+        sql_act(sqlite_connect => {
+          var cmd = sqlite_connect.CreateCommand(); //create command
+          cmd.CommandText = "delete from cnet";
+          cmd.ExecuteNonQuery();
+
+          cmd.CommandText = "delete from recnet";
+          cmd.ExecuteNonQuery();
+        });
+      };
+      var txtid = 0;
+      Action<int, JObject> act_sqlinsert = (bookid, jtxt) => {
+      // bookid 1-based.
+      // jtxt: {1:1:xxxxxxxxx, 2:2:xxxxxxxxxx}
+      sql_act(sqlite_connect => {
+        var tran = sqlite_connect.BeginTransaction();
+        try
+        {
+          //var txtid = 0;
+          var engs = (string)book_name_reference[bookid - 1][1];
+          foreach (var jv in jtxt.Properties())
+          {
+            var str1s = jv.Name.Split(':');
+            var ichap = int.Parse(str1s[0]);
+            var isec = int.Parse(str1s[1]);
+
+            var cmd = sqlite_connect.CreateCommand(); //create command
+                                                      // id, engs, chap, sec, txt, username, xxx, xxx
+
+            cmd.CommandText =
+@"INSERT INTO cnet VALUES (" + txtid++ +
+@",'" + engs.Replace("'", "''") +
+@"'," + ichap +
+@"," + isec +
+@",'" + ((string)jv.Value).Replace("'", "''") +
+"',null,null,null);";
+            cmd.ExecuteNonQuery();
+
+            //if ( cnt++ > 3646)
+            //{
+            //  tran.Commit();
+            //  tran = sqlite_connect.BeginTransaction();
+            //  cnt = 0;
+            //}
+          }
+          tran.Commit();
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine(bookid + " " +  ex.Message);
+          tran.Rollback();
+        }
+      });
+      };
+      Action<int, string[]> act_sqlinsert_footnotes = (bookid, notes) => {
+        // bookid: 1-based
+        // notes[]: 1-based
+
+        sql_act(sqlite_connect => {
+          int cnt = 0;
+          var path = "cnet.sqlite";
+            var tran = sqlite_connect.BeginTransaction();
+            try
+            {
+              var engs = book_name_reference[bookid - 1][1];
+
+              for (int i = 0; i < notes.Length; i++)
+              {
+                var cmd = sqlite_connect.CreateCommand(); //create command
+                                                          // id, engs, chap, sec, txt, username, xxx, xxx
+                cmd.CommandText =
+                                  @"INSERT INTO recnet VALUES ('" + engs.Replace("'", "''") +
+                                  @"'," + (i + 1) +
+                                  @",'" + notes[i].Replace("'", "''") +
+                                  "');";
+                cmd.ExecuteNonQuery();
+                //if ( cnt++ > 3646)
+                //{
+                //  tran.Commit();
+                //  tran = sqlite_connect.BeginTransaction();
+                //  cnt = 0;
+                //}
+              }
+              tran.Commit();
+            }
+            catch (Exception ex)
+            {
+              Console.WriteLine(ex.Message);
+              tran.Rollback();
+            }
+        });
+      };
+
       var files = Directory.EnumerateFiles(srd, "*.docx", SearchOption.AllDirectories);
       var reg1_na = new Regex(@"^([0-9]+)[ -]", RegexOptions.Compiled);
+
+      act_create_table();
+      act_reset_table();
+
       foreach (var file in files)
       {
         var dir = Path.GetDirectoryName(file);
@@ -572,20 +715,17 @@ namespace cnetParse
 
         maybe2();
 
-        //var srd2 = AppDomain.CurrentDomain.BaseDirectory + "step1/";
-        //Directory.CreateDirectory(srd2);
-        //File.WriteAllText( srd2 +  ibook + "-step1.txt", string.Join("\r\n", elemPs) );
+        var srd2 = AppDomain.CurrentDomain.BaseDirectory + "step1/";
+        Directory.CreateDirectory(srd2);
+        File.WriteAllText(srd2 + ibook + "-step1.txt", string.Join("\r\n", elemPs));
 
-        //// 註腳. 
-        //var srd3 = AppDomain.CurrentDomain.BaseDirectory + "footnotes/";
-        //Directory.CreateDirectory(srd3);
-        //File.WriteAllText(srd3 + ibook + "-footnotes.txt", string.Join("\r\n", footnotestext));
+        // 註腳. 
+        var srd3 = AppDomain.CurrentDomain.BaseDirectory + "footnotes/";
+        Directory.CreateDirectory(srd3);
+        File.WriteAllText(srd3 + ibook + "-footnotes.txt", string.Join("\r\n", footnotestext));
 
+        JObject jtxt = new JObject();
         {
-          // 下面已經確定過, 沒有一個 PTitle 會有2個以上的 Verse ... 歷下30:6修正後.
-          //var aa = elemPs.Where(a1 => a1.style == "CParagraphTitle" && a1.elemRs.Where(aa1 => aa1.style == "Verse").Count() > 1);
-
-          JObject jtxt = new JObject();
           string verse = null;
           string title = "";
           var body = new StringBuilder();
@@ -644,160 +784,38 @@ namespace cnetParse
           }
 
           // 註腳. 
-          var srd3 = AppDomain.CurrentDomain.BaseDirectory + "jtxt/";
-          Directory.CreateDirectory(srd3);
-          File.WriteAllText(srd3 + ibook + "-jtxt.txt", jtxt.ToString());
+          var srd4 = AppDomain.CurrentDomain.BaseDirectory + "jtxt/";
+          Directory.CreateDirectory(srd4);
+          File.WriteAllText(srd4 + ibook + "-jtxt.txt", jtxt.ToString());
+        }
+
+        {
+          //check 
+          JObject jo = new JObject();
+          foreach(var pr1 in jtxt.Properties())
+          {
+            try
+            {
+              var r1= pr1.Name.Split(':');
+              int.Parse(r1[0]);
+              int.Parse(r1[1]);
+            }
+            catch {
+              jo[pr1.Name] = pr1.Value;
+            }
+          }
+          if ( jo.Properties().Count()>0)
+          {
+            File.WriteAllText(ibook + "-verse error.txt",jo.ToString());
+          }
         }
 
         // sql 
         {
-
+          act_sqlinsert(ibook, jtxt);
+          act_sqlinsert_footnotes(ibook, footnotestext.ToArray());
         }
       }
-    }
-//    void sql()
-//    {
-//      var path = "cnet.sqlite";
-//      using (var sqlite_connect = new SQLiteConnection("Data source=" + path))
-//      {
-//        sqlite_connect.Open();
-
-//        {
-//          var cmd = sqlite_connect.CreateCommand(); //create command
-//          cmd.CommandText =
-//            @"CREATE TABLE IF NOT EXISTS cnet (
-//id INTEGER, 
-//engs TEXT,
-//chap INTEGER,
-//sec INTEGER,
-//txt TEXT,
-//username TEXT,
-//modtime TEXT,
-//origuser TEXT
-//)";
-//          cmd.ExecuteNonQuery();
-
-//          cmd.CommandText = "delete from cnet";
-//          cmd.ExecuteNonQuery();
-//        }
-
-//        {
-//          var cmd = sqlite_connect.CreateCommand(); //create command
-//          cmd.CommandText =
-//            @"CREATE TABLE IF NOT EXISTS recnet  (
-//engs TEXT,
-//id INTEGER, 
-//txt TEXT
-//)";
-//          cmd.ExecuteNonQuery();
-
-//          cmd.CommandText = "delete from recnet";
-//          cmd.ExecuteNonQuery();
-//        }
-
-//        {// jtxt
-//          int cnt = 0;
-//          var tran = sqlite_connect.BeginTransaction();
-//          try
-//          {
-//            var txtid = 0;
-//            foreach (var jb in jnet.Properties())
-//            {
-//              int bookid = int.Parse(jb.Name); // 1-based
-
-//              //var engs = bookid.ToString();
-//              var engs = (string)jbookid2nas[bookid.ToString()][0];
-
-//              var jtxt = jb.Value["txt"] as JObject;
-//              foreach (var jv in jtxt.Properties())
-//              {
-//                var str1s = jv.Name.Split(':');
-//                var ichap = int.Parse(str1s[0]);
-//                var isec = int.Parse(str1s[1]);
-
-//                var cmd = sqlite_connect.CreateCommand(); //create command
-//                                                          // id, engs, chap, sec, txt, username, xxx, xxx
-
-//                cmd.CommandText =
-//  @"INSERT INTO cnet VALUES (" + txtid++ +
-//  @",'" + engs.Replace("'", "''") +
-//  @"'," + ichap +
-//  @"," + isec +
-//  @",'" + ((string)jv.Value).Replace("'", "''") +
-//  "',null,null,null);";
-//                cmd.ExecuteNonQuery();
-
-
-
-//                //if ( cnt++ > 3646)
-//                //{
-//                //  tran.Commit();
-//                //  tran = sqlite_connect.BeginTransaction();
-//                //  cnt = 0;
-//                //}
-//              }
-//            }
-//            tran.Commit();
-//          }
-//          catch (Exception ex)
-//          {
-//            Console.WriteLine(ex.Message);
-//            tran.Rollback();
-//          }
-//        }
-
-//        {
-//          int cnt = 0;
-//          var tran = sqlite_connect.BeginTransaction();
-//          try
-//          {
-//            var txtid = 0;
-//            foreach (var jb in jnet.Properties())
-//            {
-//              int bookid = int.Parse(jb.Name); // 1-based
-
-//              //var engs = bookid.ToString();
-//              var engs = (string)jbookid2nas[bookid.ToString()][0];
-
-//              var jtxt = jb.Value["fts"] as JObject;
-//              foreach (var jv in jtxt.Properties())
-//              {
-//                //var str1s = jv.Name.Split(':');
-//                //var ichap = int.Parse(str1s[0]);
-//                //var isec = int.Parse(str1s[1]);
-
-//                var cmd = sqlite_connect.CreateCommand(); //create command
-//                                                          // id, engs, chap, sec, txt, username, xxx, xxx
-//                cmd.CommandText =
-//                                  @"INSERT INTO recnet VALUES ('" + engs.Replace("'", "''") +
-//                                  @"'," + int.Parse(jv.Name) +
-//                                  @",'" + ((string)jv.Value).Replace("'", "''") +
-//                                  "');";
-//                cmd.ExecuteNonQuery();
-
-//                //if ( cnt++ > 3646)
-//                //{
-//                //  tran.Commit();
-//                //  tran = sqlite_connect.BeginTransaction();
-//                //  cnt = 0;
-//                //}
-//              }
-//            }
-//            tran.Commit();
-//          }
-//          catch (Exception ex)
-//          {
-//            Console.WriteLine(ex.Message);
-//            tran.Rollback();
-//          }
-//        }
-
-
-//      }// sqlite
-//    }
-    void asdfs()
-    {
-      
     }
   }
 
