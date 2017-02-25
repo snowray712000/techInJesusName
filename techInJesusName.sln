@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "techWinForm", "techWinForm\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cnetParse", "cnetParse\cnetParse.csproj", "{B3474A77-05C1-4244-806E-19BEB72164FA}"
 EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "techNodejsConsole", "techNodejsConsole\techNodejsConsole.njsproj", "{4F3A9D2B-6207-40EA-A4BF-FC9C102EFE91}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{B3474A77-05C1-4244-806E-19BEB72164FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3474A77-05C1-4244-806E-19BEB72164FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3474A77-05C1-4244-806E-19BEB72164FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F3A9D2B-6207-40EA-A4BF-FC9C102EFE91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F3A9D2B-6207-40EA-A4BF-FC9C102EFE91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F3A9D2B-6207-40EA-A4BF-FC9C102EFE91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F3A9D2B-6207-40EA-A4BF-FC9C102EFE91}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,14 @@
+{
+  "name": "tech-nodejs-console",
+  "version": "0.0.0",
+  "description": "techNodejsConsole",
+  "main": "app.js",
+  "author": {
+    "name": "littlesnow"
+  },
+  "dependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.23.0",
+    "vue": "^2.1.10"
+  }
+}
