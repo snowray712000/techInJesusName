@@ -26,7 +26,7 @@
         <template v-for="a1 in sp1">
             <span v-if="a1.tp==0">{{a1.tx}}</span>
             <span v-else-if="a1.tp==1" v-bind:class="{ky:a1.ky, sn:!a1.ky}">({{a1.tx}})</span>
-            <span v-else-if="a1.tp==2" v-bind:class="{ky:a1.ky, sn:!a1.ky}">({{a1.tx}})</span>
+            <span v-else-if="a1.tp==2" v-bind:class="{ky:a1.ky, sn:!a1.ky}"><{{a1.tx}}></span>
         </template>
     </span>
     <script>

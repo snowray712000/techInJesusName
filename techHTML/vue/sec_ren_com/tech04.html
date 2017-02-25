@@ -9,25 +9,34 @@
     <style>
         .sn {
             color: blue;
+            cursor:pointer;
         }
 
         .ky {
             color: red;
+            cursor:pointer;
         }
     </style>
 </head>
 <body>
+    現在要開始加入訊息，先作SnClick訊息。<br />
+    技術: v-on傳參數, 還有原生資訊 $event<br /> 
+    tech04,還沒有辦法測，因為要測應該是要把此變成template, 外部來接...tech04b<br /> 
+
+    <hr />
+    <div id="test1">
+        <span id="app">
+            <template v-for="a1 in sp1">
+                <span v-if="a1.tp==0" v-bind:class="{ky:a1.ky}" v-on:click="Ky1Click(a1.tx,$event)">{{a1.tx}}</span>
+                <span v-else-if="a1.tp==1" v-bind:class="{ky:a1.ky, sn:!a1.ky}" v-on:click="SnClick(a1.tx,$event)">({{a1.tx}})</span>
+                <span v-else-if="a1.tp==2" v-bind:class="{ky:a1.ky, sn:!a1.ky}" v-on:click="SnClick(a1.tx,$event)"><{{a1.tx}}></span>
+            </template>
+        </span>
+    </div>
+    <hr />
+    order message<br />
     tech02, 還沒加入「中文」關鍵字，目前只有sn關鍵字。<br />
     tech03, 已經可將中文關鍵字也加進去。 
-    <hr />
-    <span id="app">
-        <template v-for="a1 in sp1">
-            <span v-if="a1.tp==0" v-bind:class="{ky:a1.ky}">{{a1.tx}}</span>
-            <span v-else-if="a1.tp==1" v-bind:class="{ky:a1.ky, sn:!a1.ky}">({{a1.tx}})</span>
-            <span v-else-if="a1.tp==2" v-bind:class="{ky:a1.ky, sn:!a1.ky}"><{{a1.tx}}></span>
-        </template>
-    </span>
-    <hr />
     order message<br />
     tech01,有個大缺點，它的內容是用rawHtml去完成的，如果可以，全都一致用vue會比較好. <br />
     tech02, 已經成功把所有經文「斷開」為vue元件, 而非rawHTML<br />
@@ -48,6 +57,22 @@
 		version: "unv",
 		ky1: ["和", "摩西"],
 		ky2: ["03068", "0413", "8799"],
+	  },
+	  methods: {
+	      SnClick: function (sn, event) {
+	          let jo = {};
+	          jo["sn"] = sn;
+	          jo["x"] = event.clientX;
+	          jo["y"] = event.clientY;
+	          this.$emit('SnClick', jo);
+	      },
+	      Ky1Click: function (ky1, event) {
+	          let jo = {};
+	          jo["ky1"] = ky1;
+	          jo["x"] = event.clientX;
+	          jo["y"] = event.clientY;
+	          this.$emit('Ky1Click', jo);
+	      }
 	  },
 	  computed: {
 	      sp1: function () {
@@ -73,6 +98,7 @@
 	              // (08799a)
 	              let reg1 = new RegExp('<(WTG|WTH)([0]*)([0-9]+a{0,1})>', 'g');
 	              while ((match = reg1.exec(bible_text)) !== null) {
+
 	                  // "<WTH8799>", "WTH", "", "8799"
 	                  // "<WTH8799>", "WTH", "", "8799a"
 	                  let jo = {};
@@ -134,9 +160,8 @@
 	          }
 	          return od;
 	      },
-	  },
+	  }
 	})
-
     </script>
 </body>
 </html>

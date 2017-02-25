@@ -1,0 +1,3 @@
+var t = {
+  template: "<span><template v-for=\"a1 in sp1\"><span v-if=\"a1.tp==0\" v-bind:class=\"{ky:a1.ky}\" v-on:click=\"Ky1Click(a1,$event)\">{{a1.tx}}</span><span v-else-if=\"a1.tp==1\" v-bind:class=\"{ky:a1.ky, sn:!a1.ky}\" v-on:click=\"SnClick(a1,$event)\">({{a1.tx}})</span><span v-else-if=\"a1.tp==2\" v-bind:class=\"{ky:a1.ky, sn:!a1.ky}\" v-on:click=\"SnClick(a1,$event)\"><{{a1.tx}}></span></template></span>"
+};
