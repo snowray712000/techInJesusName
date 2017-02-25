@@ -1,0 +1,69 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <meta charset="utf-8" />
+    <script src="../../Scripts/vue.min.js"></script>
+    <style>
+        .sn {
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <span id="app" v-html="bible_text1"></span>
+    <script>
+	  {
+		  let bible_text = '耶和華<WH03068>吩咐<WAH0413>摩西<WH04872>說<WH0559><WTH8799>：「你進去<WH0935><WTH8798>見<WAH0413>法老<WH06547>，對他<WAH0413>說<WH01696><WTH8765>：『耶和華<WH03068>─希伯來人<WH05680>的　神<WH0430>這樣<WAH03541>說<WH0559><WTH8804>：容<WAH0853>我的百姓<WH05971>去<WH07971><WTH8761>，好事奉我<WH05647><WTH8799>。';
+		  let ky1 = ["和", "摩西"];
+		  let ky2 = ["03068", "0413 
+
+		  {
+			  // (08799a)
+			  let reg1 = new RegExp('<(WTG|WTH)([0]*)([0-9]+a{0,1})>', 'g');
+			  while ((match = reg1.exec(bible_text)) !== null) {
+				  // "<WTH8799>", "WTH", "", "8799"
+				  // "<WTH8799>", "WTH", "", "8799a"
+			  }
+
+			  bible_text = bible_text.replace(reg1, '<span class="sn">($2$3)</span>');
+			  //console.log(bible_text.replace(reg1, '<span class="sn">($2$3)</span>'));
+		  }
+		  {
+			  // <04872a>
+			  let reg1 = new RegExp('<(WH|WAH|WG|WAG|WH)([0]*)([0-9]+a{0,1})>', 'g');
+			  while ((match = reg1.exec(bible_text)) !== null) {
+				  // "<WH04872>", "WH", "0", "4872"
+			  }
+			  //console.log(bible_text.replace(reg1, '<$2$3>'));
+			  bible_text = bible_text.replace(reg1, '<span class="sn"><$2$3></span>');
+		  }
+
+	  }
+
+	var vm = new Vue({
+	  el: "#app",
+	  data: {
+		bible_text: '耶和華<WH03068>吩咐<WAH0413>摩西<WH04872>說<WH0559><WTH8799>：「你進去<WH0935><WTH8798>見<WAH0413>法老<WH06547>，對他<WAH0413>說<WH01696><WTH8765>：『耶和華<WH03068>─希伯來人<WH05680>的　神<WH0430>這樣<WAH03541>說<WH0559><WTH8804>：容<WAH0853>我的百姓<WH05971>去<WH07971><WTH8761>，好事奉我<WH05647><WTH8799>。',
+		engs: "Ex",
+		chinese: "出",
+		chap: 9,
+		sec: 1,
+		version: "unv",
+		key1: ["愛", "恨"],
+		key2: ["0559", "0430"],
+	  },
+	  computed: {
+		bible_text1: function () {
+			let reg1t = new RegExp('<(WTG|WTH)([0]*)([0-9]+a{0,1})>', 'g');
+			let reg1 = new RegExp('<(WH|WAH|WG|WAG|WH)([0]*)([0-9]+a{0,1})>', 'g');
+			return this.bible_text.replace(reg1t, '<span class="sn">($2$3)</span>').replace(reg1, '<span class="sn"><$2$3></span>');
+		},
+	  },
+	})
+
+    </script>
+</body>
+</html>
