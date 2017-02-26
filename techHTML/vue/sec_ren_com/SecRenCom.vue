@@ -1,5 +1,6 @@
 ﻿<template>
     <span>
+        <span class="pr1">{{pr1}}</span>
         <template v-for="a1 in sp1">
             <span v-if="a1.tp==0" v-bind:class="{ky:a1.ky}" v-on:click="Ky1Click(a1,$event)">{{a1.tx}}</span>
             <span v-else-if="a1.tp==1" v-bind:class="{ky:a1.ky, sn:!a1.ky}" v-on:click="SnClick(a1,$event)">({{a1.tx}})</span>
@@ -20,14 +21,15 @@
             "ky2": { type: Array, required: false, default: ["03068", "0413", "8799"] },
             "engs": { default: "Ex", type: String, required: false },
             "chinese": { default: "出", type: String, requred: false },
-            "chap": { default: 9, type: Number, requred: false },
-            "sec": { default: 1, type: Number, requred: false },
+            "chap": { default: "9", type: String, requred: false },//配合sec
+            "sec": { default: "1", type: String, requred: false },//sec將來可能是 "9-12",所以用String,非Int
             "version": { default: "unv", type: String, requred: false },
+            "isv": { default: 0, type: Boolean, requred: false },//is version show
+            "isb": { default: 0, type: Boolean, requred: false },//is book show
+            "isc": { default: 0, type: Boolean, requred: false },//is chap show
+            "iss": { default: 1, type: Boolean, requred: false },//is section show
         },
-        data: function () {
-            return {
-            };
-        },
+        data: function () { return {}; },
         methods: {
             SnClick: function (a1, event) {
                 let jo = {};
@@ -131,6 +133,54 @@
                 }
                 return od;
             },
+            pr1: function () {
+                // prefix  太 10:31(UNV), 太 10:31, 10:31, 31,
+
+                if (this.isb) {
+                    let verch = ["unv"]; //用中文的版本放這.
+                    let na1 = verch.indexOf(this.version) == -1 ? this.engs : this.chinese;
+
+                    let ver = "(" + this.version.toUpperCase() + ")";//(UNV)
+
+                    if (this.isv && this.isc && this.iss)
+                        return na1 + " " + this.chap + ":" + this.sec + ver; //太 10:31(UNV)
+                    if (!this.isv && this.isc && this.iss)
+                        return na1 + " " + this.chap + ":" + this.sec; //太 10:31
+                    //if (this.isv && this.isc && !this.iss)
+                    //  return na1 + " " + this.chap + ver; //太 10(UNV)
+                    //if (!this.isv && this.isc && !this.iss)
+                    //  return na1 + " " + this.chap; //太 10
+                }
+                else { //book false
+                    let ver = "(" + this.version.toUpperCase() + ")";//(UNV)
+
+                    if (this.isv && this.isc && this.iss)
+                        return this.chap + ":" + this.sec + ver; //10:31(UNV)
+                    if (!this.isv && this.isc && this.iss)
+                        return this.chap + ":" + this.sec; //10:31
+                    if (this.isv && !this.isc && this.iss)
+                        return this.sec; //31(UNV)
+                    if (!this.isv && !this.isc && this.iss)
+                        return this.sec; //31
+                }
+                return "";
+            }
         }
     };
 </script>
+
+<style scoped>
+        .sn {
+            color: blue;
+            cursor:pointer;
+        }
+
+        .ky {
+            color: red;
+            cursor:pointer;
+        }
+        .pr1 {
+            color:gray;
+            font-size:small;
+        }
+</style>
