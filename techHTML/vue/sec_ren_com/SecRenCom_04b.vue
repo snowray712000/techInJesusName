@@ -9,23 +9,17 @@
 </template>
 
 <script>
-    let tSecRenCom = {
-        props: {
-            "bible_text": {
-                type: String,
-                required: true,
-                default: '耶和華<WH03068>吩咐<WAH0413>摩西<WH04872>說<WH0559><WTH8799>：「你進去<WH0935><WTH8798>見<WAH0413>法老<WH06547>，對他<WAH0413>說<WH01696><WTH8765>：『耶和華<WH03068>─希伯來人<WH05680>的　神<WH0430>這樣<WAH03541>說<WH0559><WTH8804>：容<WAH0853>我的百姓<WH05971>去<WH07971><WTH8761>，好事奉我<WH05647><WTH8799>。'
-            },
-            "ky1": { type: Array, required: false, default: ["和", "摩西"] },
-            "ky2": { type: Array, required: false, default: ["03068", "0413", "8799"] },
-            "engs": { default: "Ex", type: String, required: false },
-            "chinese": { default: "出", type: String, requred: false },
-            "chap": { default: 9, type: Number, requred: false },
-            "sec": { default: 1, type: Number, requred: false },
-            "version": { default: "unv", type: String, requred: false },
-        },
+    let tSecRenCom = {        
         data: function () {
             return {
+                bible_text: '耶和華<WH03068>吩咐<WAH0413>摩西<WH04872>說<WH0559><WTH8799>：「你進去<WH0935><WTH8798>見<WAH0413>法老<WH06547>，對他<WAH0413>說<WH01696><WTH8765>：『耶和華<WH03068>─希伯來人<WH05680>的　神<WH0430>這樣<WAH03541>說<WH0559><WTH8804>：容<WAH0853>我的百姓<WH05971>去<WH07971><WTH8761>，好事奉我<WH05647><WTH8799>。',
+                engs: "Ex",
+                chinese: "出",
+                chap: 9,
+                sec: 1,
+                version: "unv",
+                ky1: ["和", "摩西"],
+                ky2: ["03068", "0413", "8799"],
             };
         },
         methods: {
@@ -41,7 +35,7 @@
                 jo["tx"] = a1.tx;
                 jo["x"] = event.clientX;
                 jo["y"] = event.clientY;
-                if (a1.ky == 1)
+                if ( a1.ky == 1 )
                     this.$emit('ky1click', jo);
             }
         },
