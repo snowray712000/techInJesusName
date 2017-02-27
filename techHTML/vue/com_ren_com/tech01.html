@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+	<meta charset="utf-8" />
+    <script src="../../Scripts/vue.min.js"></script>
+    <script src="../../Scripts/jquery-3.1.0.min.js"></script>
+    <script src="../../fhl/fhl.js"></script>
+    <style>
+        .beSelected {
+            color:red;
+        }
+        .btn {
+            cursor:pointer;
+        }
+    </style>
+</head>
+<body>
+    經文選擇<br />
+    <hr />
+    <div id="app">
+        <div>
+            <span v-for="(a1,idx) in books" v-on:click="clickbook(idx+1)" class="btn" v-bind:class="{beSelected:idx==ibook-1}">{{a1[2]}} </span>
+        </div>
+        <div v-if="ibook>0">
+            <span v-for="a1 in cntchaps[ibook-1]" v-on:click="clickchap(a1+1)" class="btn" v-bind:class="{beSelected:a1==ichap-1}">{{a1}} </span>
+        </div>
+    </div>
+    <script>
+        var vm = new Vue({
+            data: {
+                ibook: -1,
+                ichap: -1,
+                isec:-1,
+                books: fhl.g_book_all,
+                cntchaps: fhl.g_cnt_chap
+            },
+            methods: {
+                clickbook: function (ibook1based) {
+                    this.ibook = ibook1based;
+                    var cntchap = this.cntchaps[this.ibook - 1];
+                    if (cntchap == 1) //如果只有1個chap,就直接自動選此章
+                        this.ichap = 1;
+                    else
+                        this.ichap = -1;
+                    this.isec = -1;
+
+                    if (this.ichap == 1)
+                        this.clickchap(this.ichap);
+                },
+                clickchap: function (ichap1based) {
+                    this.ichap = ichap1based;
+                    //var pthis = this;
+                    //getbible(this.ibook, this.ichap, function (a1) {
+                    //    // async when get
+                    //    var a2 = JSON.parse(a1);
+                    //    if (a2.status == "success") {
+                    //        pthis.record = a2.record;
+                    //    }
+                    //});
+                },
+                clicksec: function (isec1based) {
+                    this.isec = isec1based;
+                }
+            },
+            el: "#app"
+        });
+    </script>
+</body>
+</html>
