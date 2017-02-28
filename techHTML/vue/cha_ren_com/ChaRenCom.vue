@@ -55,11 +55,22 @@
 
                 if (this.ichap === 1)
                     this.clickchap(this.ichap);
+
+                let jmsg = {};
+                jmsg["ib"] = this.ibook;
+                jmsg["ic"] = this.ichap;
+                jmsg["is"] = this.isec;
+                this.$emit('clickbook', jmsg);
             },
             clickchap: function (ichap1based) {
                 this.ichap = ichap1based;
-
                 this.itab = 2;
+
+                let jmsg = {};
+                jmsg["ib"] = this.ibook;
+                jmsg["ic"] = this.ichap;
+                jmsg["is"] = this.isec;
+                this.$emit('clickchap', jmsg);
                 //var pthis = this;
                 //getbible(this.ibook, this.ichap, function (a1) {
                 //    // async when get

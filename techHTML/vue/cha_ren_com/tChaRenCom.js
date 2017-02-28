@@ -1,6 +1,6 @@
 let tChaRenCom = {
   props: {
-    tp: { default: 1 }, //type: 0, 1
+    tp: { default: 0 }, //type: 0, 1
     itab: {default: 0 },//0, 1
     ibook: { default: -1 },
     ichap: { default: -1 },
@@ -26,14 +26,24 @@ let tChaRenCom = {
 
       this.itab = 1;
 
-      console.log(this.ichap);
       if (this.ichap === 1)
         this.clickchap(this.ichap);
+
+      let jmsg = {};
+      jmsg["ib"] = this.ibook;
+      jmsg["ic"] = this.ichap;
+      jmsg["is"] = this.isec;
+      this.$emit('clickbook',jmsg);
     },
     clickchap: function (ichap1based) {
       this.ichap = ichap1based;
-      console.log(ichap1based);
       this.itab = 2;
+
+      let jmsg = {};
+      jmsg["ib"] = this.ibook;
+      jmsg["ic"] = this.ichap;
+      jmsg["is"] = this.isec;
+      this.$emit('clickchap', jmsg);
       //var pthis = this;
       //getbible(this.ibook, this.ichap, function (a1) {
       //    // async when get

@@ -21,12 +21,15 @@
 	tech02,把tech01的charencom,vue化.
 	<hr />
 	<div id="app">
-        <cha-ren-com></cha-ren-com>
+        <cha-ren-com v-on:clickbook="fn1" v-on:clickchap="fn1"></cha-ren-com>
     </div>
 	<script>
         var vm = new Vue({
             components: {
                 "cha-ren-com": tChaRenCom
+            },
+            methods: {
+                fn1: function (a1) { console.log(a1);}
             },
 			el: "#app"
 		});
