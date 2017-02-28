@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta charset="utf-8" />
+	<script src="../../Scripts/jquery-3.1.0.min.js"></script>
+	<script src="../../Scripts/bootstrap.min.js"></script>
+	<link href="../../Content/bootstrap-theme.min.css" rel="stylesheet" />
+	<link href="../../Content/bootstrap.min.css" rel="stylesheet" />
+	<script src="../../Scripts/vue.min.js"></script>
+	<script src="../../fhl/fhl.js"></script>
+	<style>
+		.beSelected {
+			color:red;
+		}
+	</style>
+</head>
+<body>
+	經文選擇,tp=0加了bootstrap<br />
+	<hr />
+	<div id="app">
+		<div v-if="tp==0">
+				<ul class="nav nav-tabs">
+					<li v-bind:class="{active:itab==0}" v-on:click="clicktab(0)"><a href="#">卷</a></li>
+					<li v-bind:class="{active:itab==1,disabled:ibook<1}" v-on:click="clicktab(1)"><a href="#">章</a></li>
+					<li v-if="ibook>0" v-bind:class="{active:itab==2}" v-on:click="clicktab(2)"><a href="#">{{books[ibook-1][2]}}<span v-if="ichap>0">{{ichap-1}}</span></a></li>
+				</ul>
+				<div v-if="itab==0">
+					<span v-for="(a1,idx) in books" v-on:click="clickbook(idx+1)" class="btn" v-bind:class="{beSelected:idx==ibook-1}">{{a1[2]}} </span>
+				</div>
+				<div v-if="itab==1 && ibook>0">
+					<span v-for="a1 in cntchaps[ibook-1]" v-on:click="clickchap(a1+1)" class="btn" v-bind:class="{beSelected:a1==ichap-1}">{{a1}} </span>
+				</div>
+			</div>
+		<div v-if="tp==1">
+			<div>
+				<span v-for="(a1,idx) in books" v-on:click="clickbook(idx+1)" class="btn" v-bind:class="{beSelected:idx==ibook-1}">{{a1[2]}} </span>
+			</div>
+			<div v-if="ibook>0">
+				<span v-for="a1 in cntchaps[ibook-1]" v-on:click="clickchap(a1+1)" class="btn" v-bind:class="{beSelected:a1==ichap-1}">{{a1}} </span>
+			</div>
+		</div>
+	</div>
+	<script>
+		var vm = new Vue({
+			data: {
+				tp: 0, //type: 0, 1
+				itab:0,//0, 1
+				ibook: -1,
+				ichap: -1,
+				isec:-1,
+				books: fhl.g_book_all,
+				cntchaps: fhl.g_cnt_chap
+			},
+			methods: {
+				clicktab: function (itab0based) {
+					if ( itab0based == 1 && this.ibook>0 )
+						this.itab = itab0based;
+				   if ( itab0based != 1 )
+						this.itab = itab0based;
+				},
+				clickbook: function (ibook1based) {
+					this.ibook = ibook1based;
+					var cntchap = this.cntchaps[this.ibook - 1];
+					if (cntchap == 1) //如果只有1個chap,就直接自動選此章
+						this.ichap = 1;
+					else
+						this.ichap = -1;
+					this.isec = -1;
+
+					this.itab = 1;
+
+					if (this.ichap == 1)
+						this.clickchap(this.ichap);
+				},
+				clickchap: function (ichap1based) {
+					this.ichap = ichap1based;
+
+					this.itab = 2;
+					//var pthis = this;
+					//getbible(this.ibook, this.ichap, function (a1) {
+					//    // async when get
+					//    var a2 = JSON.parse(a1);
+					//    if (a2.status == "success") {
+					//        pthis.record = a2.record;
+					//    }
+					//});
+				},
+				clicksec: function (isec1based) {
+					this.isec = isec1based;
+				}
+			},
+			el: "#app"
+		});
+	</script>
+</body>
+</html>
